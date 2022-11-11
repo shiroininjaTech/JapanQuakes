@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 
 """ Written By: Tom Mullins
     Version: 0.75
-    Modified: 04/19/18
+    Modified: 11/10/22
 """
 """* Changelog:
    * V 0.5. The initial completed library, with two modules.
@@ -36,7 +36,7 @@ def japanQuakes():
 
     #print("Japan has had:\n")
     quakeSoup = bs4.BeautifulSoup(quakeSite.text, "html.parser")
-    quakeData = quakeSoup.find_all(class_="col-lg-4 col-sm-4")
+    quakeData = quakeSoup.find_all(class_="col col-lg-4 col-md-6 col-sm-12 col-12")
     quakeSelect = quakeData[0].getText()
     quakeString = str(quakeSelect)                            # Slicing and stripping the data for formatting.
     strippedCount = re.sub( '\s+', ' ', quakeString).strip()
@@ -58,7 +58,7 @@ def japanQuakes():
 def quakeStrengths():
 
     strengthSoup = bs4.BeautifulSoup(quakeSite.text, "html.parser")
-    testStrength = strengthSoup.find_all(class_="col-lg-5 col-sm-4")
+    testStrength = strengthSoup.find_all(class_="col col-lg-5 col-md-6 col-sm-12 col-12")
 
     # Getting each individual line of earthquake strength data
 
@@ -81,20 +81,15 @@ def quakeStrengths():
 def mostRecent():
 
     recentSoup = bs4.BeautifulSoup(quakeSite.text, "html.parser")
-    recentData = recentSoup.find_all(class_="quiet row")
-    recentJap = []
-    for x in recentData:
-        recentJap.append(x.text)
+    recentData = recentSoup.find_all(class_="quake-info-container")
 
-    recentStrings = []
-    for i in recentJap:
-        recentStrings.append(str(i))
-    recentJ = []
-    for i in recentStrings:
-        recentJ.append(re.sub( '\s+', ' ', i).strip())
+    japanRecent = str(recentData[0].getText())
+
+    japanrecentlyStripped = re.sub( '\s+', ' ', "".join(japanRecent.split("20", 2)[:2])).strip()
+    finalStrip = "".join(japanrecentlyStripped.split(".", 2)[:2])[:-1]
+
     global recentItem
-    recentItem = [recentJ[0]]
-
+    recentItem = [finalStrip]
     return
 #---------------------------------------------------------------------------------------------------------------------
 # Functions for the Asia tab.
@@ -110,13 +105,14 @@ def mostasiaRecent():
     asiarecentSite.raise_for_status()
 
     asiarecentSoup = bs4.BeautifulSoup(asiarecentSite.text, "html.parser")
-    asiarecentData = asiarecentSoup.find_all(class_="quiet row")
+    asiarecentData = asiarecentSoup.find_all(class_="quake-info-container")
 
     asiarecentItem = asiarecentData[0].getText()
     asiarecentString = str(asiarecentItem)
-    asiarecentlyStripped = re.sub( '\s+', ' ', asiarecentString).strip()
+    asiarecentlyStripped = re.sub( '\s+', ' ', "".join(asiarecentString.split("20", 2)[:2])).strip()
+    finalStrip = "".join(asiarecentlyStripped.split(".", 2)[:2])[:-1]
     global asiarecentList
-    asiarecentList = [asiarecentlyStripped]
+    asiarecentList = [finalStrip]
 
     return
 
@@ -127,7 +123,7 @@ def asiaQuakes():
 
     #print("Japan has had:\n")
     asia_quakeSoup = bs4.BeautifulSoup(asiarecentSite.text, "html.parser")
-    asia_quakeData = asia_quakeSoup.find_all(class_="col-lg-4 col-sm-4")
+    asia_quakeData = asia_quakeSoup.find_all(class_="col col-lg-4 col-md-6 col-sm-12 col-12")
     asia_quakeSelect = asia_quakeData[0].getText()
     asia_quakeString = str(asia_quakeSelect)                        # Slicing and stripping the data for formatting.
     asia_strippedCount = re.sub( '\s+', ' ', asia_quakeString).strip()
@@ -151,7 +147,7 @@ def asiaQuakes():
 def asiaStrengths():
 
     asia_strengthSoup = bs4.BeautifulSoup(asiarecentSite.text, "html.parser")
-    asia_testStrength = asia_strengthSoup.find_all(class_="col-lg-5 col-sm-4")
+    asia_testStrength = asia_strengthSoup.find_all(class_="col col-lg-5 col-md-6 col-sm-12 col-12")
 
     # Getting each individual line of earthquake strength data
 

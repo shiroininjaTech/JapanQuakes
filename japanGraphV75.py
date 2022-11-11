@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 
 """ Written By: Tom Mullins
     Created:  03/21/2018
-    Modified: 10/20/2018
+    Modified: 11/10/2022
 """
 
 import requests, bs4
@@ -35,7 +35,7 @@ def get_six():
     for x in recentData:
         recentJap.append(x.text)
 
-    #print(recentJap[2])                       # TESTING
+    #print(recentJap)                       # TESTING
 
     recentSix = []
     recentSix.append(recentJap[3])
@@ -46,10 +46,11 @@ def get_six():
     recentSix.append(recentJap[13])            # returns doubles of the items for some reason.
 
     #print(recentSix)                          # TESTING
-
+    
     slicedSix = []                             # A List to be filled with slices of the recentSix items
     for i in recentSix:
-        slicedSix.append(i[0:3])               # slicing down to the magnitude
+        slicedSix.append(re.findall("\d+\.\d+", i)[0])
+       # slicedSix.append(i[0:3])               # slicing down to the magnitude
 
     #print(slicedSix)                          # TESTING
     global floatSix
@@ -60,40 +61,33 @@ def get_six():
     #print(floatSix)
 
     # Now to get the data for the location labels on the graph
-    locationData = recentSoup.find_all(class_="quiet row")
-    global locateJap
-    locateJap = []
-    for x in locationData:
-        locateJap.append(x.text)
+    locationData = recentSoup.find_all(class_="quake-info-container")
 
+    # Getting the class's text and converting  them to a string.
+    global locationStrings
     locationStrings = []
-    for i in locateJap:
-        locationStrings.append(str(i))        # Converting to strings
+    for x in locationData:
+        locationStrings.append(re.sub( '\s+', ' ', str(x.text)).strip())
 
-    #print(locationStrings)                   # TESTING
-    global stripLocation
-    stripLocation = []
-    for i in locationStrings:
-        stripLocation.append(re.sub( '\s+', ' ', i).strip())
     global finalLocation
     finalLocation = []
-    for i in stripLocation:
-
+    for i in locationStrings:
         finalLocation.append(re.sub('^(.*depth)', '', i))       # removing everything before the location
+    
     finalLocation2 = []
     for i in finalLocation:
-        finalLocation2.append(i.replace(', Japan', ''))
+        finalLocation2.append("".join(i.split("20", 2)[:2]).replace(', Japan', ''))
 
     global sixLocations
     sixLocations = []
-    sixLocations.append(finalLocation2[0])    # adding the first six items to the global list
-    sixLocations.append(finalLocation2[1])
-    sixLocations.append(finalLocation2[2])
-    sixLocations.append(finalLocation2[3])
-    sixLocations.append(finalLocation2[4])
-    sixLocations.append(finalLocation2[5])
+    sixLocations.append("".join(finalLocation2[0].split(".", 2)[:1])[:-1].replace(', ', ',\n'))    # adding the first six items to the global list
+    sixLocations.append("".join(finalLocation2[1].split(".", 2)[:1])[:-1].replace(', ', ',\n'))
+    sixLocations.append("".join(finalLocation2[2].split(".", 2)[:1])[:-1].replace(', ', ',\n'))
+    sixLocations.append("".join(finalLocation2[3].split(".", 2)[:1])[:-1].replace(', ', ',\n'))
+    sixLocations.append("".join(finalLocation2[4].split(".", 2)[:1])[:-1].replace(', ', ',\n'))
+    sixLocations.append("".join(finalLocation2[5].split(".", 2)[:1])[:-1].replace(', ', ',\n'))
 
-    #print(sixLocations) # TESTING
+    print(sixLocations) # TESTING
     return
 
 
@@ -156,13 +150,19 @@ def get_asia_six():
     recentSite.raise_for_status()
 
     recentSoup = bs4.BeautifulSoup(recentSite.text, "html.parser")
-    recentData = recentSoup.find_all(class_="text-warning")
+    recentData = recentSoup.find_all(class_="quake-info-container")
 
-    global recentAsia
+    narrowerGrabs = []
+
+    for grab in recentData:
+        narrowerGrabs.append(grab.find(class_="text-warning").text)
+
+    #print(narrowerGrabs)
+    """global recentAsia
     recentAsia = [] # List to be filled with the text form of data from site
     for x in recentData:
         recentAsia.append(x.text)
-
+    
     # now we have to iterate through the recent Asia list to remove duplicates
     # of data and get just the six we need
     iteratorInt = 3
@@ -170,11 +170,11 @@ def get_asia_six():
     while iteratorInt != 15:
         recentSix.append(recentAsia[iteratorInt])
         iteratorInt += 2
-
+    """
     #print(recentSix)                       # TESTING
 
     slicedSix = []                             # A List to be filled with slices of the recentSix items
-    for i in recentSix:
+    for i in narrowerGrabs:
         slicedSix.append(i[0:3])               # slicing down to the magnitude
 
     #print(slicedSix)                          # TESTING
@@ -185,7 +185,7 @@ def get_asia_six():
                                                # building the global list for the graph
 
     # Now to get the data for the location labels on the graph
-    locationData = recentSoup.find_all(class_="quiet row")
+    locationData = recentSoup.find_all(class_="quake-info-container")
     locateAsia = []
     for x in locationData:
         locateAsia.append(x.text)
@@ -227,12 +227,15 @@ def asia_Graph():
         countryCount = 0
         #city = re.sub('^(.*depth)', '', quakeItem)
         country = re.sub('^.*?(?=,)', '', quakeItem)
+        #print(country)
         country2 = re.sub('^.*?, ', '', country)
+        #print(country2)
         country3 = re.sub('.*, ', '', country2)
+        #print(country3)
         if "Xizang" in country3:
             country3 = re.sub('Xizang.*$', '', country3)
             #country3 = re.sub('?.*?(?=Xizang)', '', country3)
-            print(country3)
+           # print(country3)
 
         if country3 not in countryData:
             #print(city)        # TESTING

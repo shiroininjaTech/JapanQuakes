@@ -6,8 +6,8 @@
 """
 """
    * Written By: Tom Mullins
-   * Version: 0.70
-   * Date Modified: 10/20/18
+   * Version: 0.75
+   * Date Modified: 08/29/22
 """
 """
    * Changelog:
@@ -51,18 +51,18 @@ class App(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setGeometry(0, 0, 0, 0)
+        #self.setGeometry(0, 0, 0, 0)
         self.setWindowTitle('Japan Quakes')
         self.setWindowIcon(QIcon('japan-flag.png'))
         self.setStyleSheet("QMainWindow { background-color: White; color: Black; }")
-        qtRectangle = self.frameGeometry()
-        centerPoint = QDesktopWidget().availableGeometry().center()
-        qtRectangle.moveCenter(centerPoint)
-        self.move(qtRectangle.center())
+        #qtRectangle = self.frameGeometry()
+        #centerPoint = QDesktopWidget().availableGeometry().center()
+        #qtRectangle.moveCenter(centerPoint)
+        #self.move(qtRectangle.center())
 
 
         self.initUI()
-        self.show()
+        #self.show()
 
 
     # The the method to setup the window.
@@ -285,6 +285,7 @@ class App(QMainWindow):
             self.mostRecent = QLabel(recentMessage, self)
             self.mostRecent.setAlignment(QtCore.Qt.AlignCenter)
             self.mostRecent.resize(30, 30)
+            self.mostRecent.setWordWrap(True)
             self.japanTab.layout.addWidget(self.mostRecent, 1 ,0)
 
         # Creating a frame for japanese counts.
