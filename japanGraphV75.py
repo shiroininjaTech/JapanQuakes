@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 
 """ Written By: Tom Mullins
     Created:  03/21/2018
-    Modified: 11/10/2022
+    Modified: 11/14/2022
 """
 
 import requests, bs4
@@ -29,21 +29,23 @@ def get_six():
     recentSite.raise_for_status()
 
     recentSoup = bs4.BeautifulSoup(recentSite.text, "html.parser")
-    recentData = recentSoup.find_all(class_="text-warning")
-    global recentJap
-    recentJap = [] # List to be filled with the text form of data from site
-    for x in recentData:
-        recentJap.append(x.text)
+    recentData = recentSoup.find_all(class_="quake-info-container")
+    recentItems =[]
 
-    #print(recentJap)                       # TESTING
-
+    for grab in recentData:
+        if grab.find(class_="text-warning") is None: 
+            recentItems.append(grab.find(class_="text-danger").text)
+ 
+        else:
+            recentItems.append(grab.find(class_="text-warning").text)
+    
     recentSix = []
-    recentSix.append(recentJap[3])
-    recentSix.append(recentJap[5])
-    recentSix.append(recentJap[7])
-    recentSix.append(recentJap[9])             # building the list with the wanted magnitudes
-    recentSix.append(recentJap[11])            # Have to skip every other item because the scraper
-    recentSix.append(recentJap[13])            # returns doubles of the items for some reason.
+    recentSix.append(recentItems[0])
+    recentSix.append(recentItems[1])
+    recentSix.append(recentItems[2])
+    recentSix.append(recentItems[3])             # building the list with the wanted magnitudes
+    recentSix.append(recentItems[4])            # Have to skip every other item because the scraper
+    recentSix.append(recentItems[5])            # returns doubles of the items for some reason.
 
     #print(recentSix)                          # TESTING
     
@@ -155,8 +157,12 @@ def get_asia_six():
     narrowerGrabs = []
 
     for grab in recentData:
-        narrowerGrabs.append(grab.find(class_="text-warning").text)
+        if grab.find(class_="text-warning") is None: 
+            narrowerGrabs.append(grab.find(class_="text-danger").text)
 
+        else:
+            narrowerGrabs.append(grab.find(class_="text-warning").text)
+    
     #print(narrowerGrabs)
     """global recentAsia
     recentAsia = [] # List to be filled with the text form of data from site
@@ -187,7 +193,7 @@ def get_asia_six():
     # Now to get the data for the location labels on the graph
     locationData = recentSoup.find_all(class_="quake-info-container")
     locateAsia = []
-    for x in locationData:
+    for x in recentData:
         locateAsia.append(x.text)
 
     locationStrings = []
@@ -196,7 +202,7 @@ def get_asia_six():
 
     stripLocation = []
     for i in locationStrings:
-        stripLocation.append(re.sub( '\s+', ' ', i).strip())
+        stripLocation.append(re.sub( '\s+', ' ', "".join(i.split("20", 2)[:2])).strip())
 
     global finalLocation
     finalLocation = []
@@ -207,7 +213,7 @@ def get_asia_six():
     iteratorInt = 0
     sixLocations = []
     while iteratorInt < 7:
-        sixLocations.append(finalLocation[iteratorInt])
+        sixLocations.append("".join(finalLocation[iteratorInt].split(".", 2)[:1])[:-1])
         iteratorInt += 1
     # Adding spaces after the commas
     global approvedSix
@@ -215,6 +221,7 @@ def get_asia_six():
     for i in sixLocations:
         approvedSix.append(re.sub(', ', ',\n', i))
 
+    print(sixLocations)
 # A function that tallies earthquakes by country of origin
 def asia_Graph():
     finalLocation.append('Ah')
