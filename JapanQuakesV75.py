@@ -7,7 +7,7 @@
 """
    * Written By: Tom Mullins
    * Version: 0.75
-   * Date Modified: 08/29/22
+   * Date Modified: 11/15/22
 """
 """
    * Changelog:
@@ -327,11 +327,8 @@ class App(QMainWindow):
         # adding a verticle spacer
         vert_Spacer(225, scroll.layout, 0, 3)
         japan_strengths()
-        interior_Spacer(200, frameLayout)
+        interior_Spacer(100, frameLayout)
 
-        #=============================================================================================================================
-        # Creating the second tab, containing graphs based on earthquake data for japan
-        #=============================================================================================================================
         gframeBuilder(scroll.layout, 2, 1, 600)
 
         #self.jgraphTab.layout = QGridLayout()
@@ -392,20 +389,14 @@ class App(QMainWindow):
 
         # The function that builds the graph and plots the data to it.
         def plot2():
-            #plt.cla()
-            #axes = self.figure.add_plot(211)
-            plt.ylabel('Total Quakes')
+
+            plt.ylabel('Total Earthquakes')
             plt.xlabel('Prefectures')
             plt.title('Earthquake Counts By Prefecture for Last 30 Quakes')
-            plt.xticks(ind2, (japanGraphV75.prefectureName))
-            #plt.yticks(height)
-            #fig, ax = plt.subplots()
-            #plt.yticks.set_major_formatter(FormatStrFormatter('%.2f'))
-            #plt.gca().yaxis.set_major_formatter(mtick.FormatStrFormatter('%.1f'))
-            #plt.ylim(3.0,8.0)
+            plt.xticks(ind2, (japanGraphV75.prefectureName), fontsize = 8)
             plt.yticks(np.arange(15))
             for a,b in zip(ind2, height2):
-                plt.text(a, b, str(b), ha='center')
+                plt.text(a, b, str(b), fontdict=dict(fontsize=8, ha='center', va='bottom'))
 
             self.canvas2.draw()
 
@@ -495,7 +486,7 @@ class App(QMainWindow):
             plt.ylabel('Strength (By Magnitude)')
             plt.xlabel('Earthquake Locations')
             plt.title('Asia\'s Last Six EarthQuakes Over 4 Magnitude')
-            plt.xticks(ind, (japanGraphV75.approvedSix[0], japanGraphV75.approvedSix[1], japanGraphV75.approvedSix[2], japanGraphV75.approvedSix[3], japanGraphV75.approvedSix[4], japanGraphV75.approvedSix[5]))
+            plt.xticks(ind, (japanGraphV75.approvedSix[0], japanGraphV75.approvedSix[1], japanGraphV75.approvedSix[2], japanGraphV75.approvedSix[3], japanGraphV75.approvedSix[4], japanGraphV75.approvedSix[5]), fontsize = 8)
             #plt.yticks(height)
             #fig, ax = plt.subplots()
             #plt.yticks.set_major_formatter(FormatStrFormatter('%.2f'))
@@ -533,7 +524,7 @@ class App(QMainWindow):
             plt.ylabel('Total Quakes')
             plt.xlabel('Countries')
             plt.title('Earthquake Counts By Country for Last 30 Quakes')
-            plt.xticks(ind2, (japanGraphV75.countryName))
+            plt.xticks(ind2, (japanGraphV75.countryName), fontsize = 8)
             #plt.yticks(height)
             #fig, ax = plt.subplots()
             #plt.yticks.set_major_formatter(FormatStrFormatter('%.2f'))

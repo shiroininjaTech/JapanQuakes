@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 
 """ Written By: Tom Mullins
     Created:  03/21/2018
-    Modified: 11/14/2022
+    Modified: 11/15/2022
 """
 
 import requests, bs4
@@ -89,7 +89,7 @@ def get_six():
     sixLocations.append("".join(finalLocation2[4].split(".", 2)[:1])[:-1].replace(', ', ',\n'))
     sixLocations.append("".join(finalLocation2[5].split(".", 2)[:1])[:-1].replace(', ', ',\n'))
 
-    print(sixLocations) # TESTING
+    #print(sixLocations) # TESTING
     return
 
 
@@ -221,19 +221,20 @@ def get_asia_six():
     for i in sixLocations:
         approvedSix.append(re.sub(', ', ',\n', i))
 
-    print(sixLocations)
+    #print(sixLocations)
 # A function that tallies earthquakes by country of origin
 def asia_Graph():
     finalLocation.append('Ah')
     iteratorInt = 0
     countryData = []
 
+    print(finalLocation)
     def asia_tally(counter):
 
         quakeItem = finalLocation[counter]
         countryCount = 0
         #city = re.sub('^(.*depth)', '', quakeItem)
-        country = re.sub('^.*?(?=,)', '', quakeItem)
+        country = re.sub('^.*?(?=,)', '', "".join(quakeItem.split(".", 2)[:1])[:-1])
         #print(country)
         country2 = re.sub('^.*?, ', '', country)
         #print(country2)
@@ -245,14 +246,14 @@ def asia_Graph():
            # print(country3)
 
         if country3 not in countryData:
-            #print(city)        # TESTING
-            for x in finalLocation:
-                if country3 in x:
-                    countryCount += 1
-            #print(cityCount)             # Testing
-            countryData.append(country3)
-            countryData.append(countryCount)
-            #print(countryData)            # TESTING
+            if "-" not in country3:
+                for x in finalLocation:
+                    if country3 in x:
+                        countryCount += 1
+                #print(cityCount)             # Testing
+                countryData.append(country3)
+                countryData.append(countryCount)
+                #print(countryData)            # TESTING
 
         return
 
@@ -278,8 +279,8 @@ def asia_Graph():
     while countScrape < len(countryData):
         countryCounts.append(countryData[countScrape])
         countScrape += 2
-    #print(countryName)
-    #print(countryCounts)
+    print(countryName)
+    print(countryCounts)
     return
 
 #get_six()
