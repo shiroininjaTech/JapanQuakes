@@ -19,10 +19,10 @@ if [ -f /etc/os-release ]; then
 # If the user is running Fedora
 if [ "$OS" = "Fedora Linux" ] ; then
   # First, we need to install the proper python 3 Libraries
-  sudo dnf install -y python3-pip python3-qt5 python3-dateutil python3-setuptools
+  sudo dnf install -y python3-pip python3-qt5 python3-dateutil python3-setuptools 
 
   # Next we install the libaries installed by pip
-  python3 -m pip install matplotlib lxml 
+  python3 -m pip install matplotlib lxml beautifulsoup4
 
   # removes the folder, then copies the files to a . folder.
   rm -rf /home/$USER/.JapanQuakes
@@ -39,7 +39,8 @@ if [ "$OS" = "Fedora Linux" ] ; then
 
 else
   # First, we need to install the proper python 3 Libraries
-  sudo apt-get install -y python3-pip python3-pyqt5 python3-dateutil python3-setuptools
+  sudo apt-get install -y python3-pip python3-pyqt5 python3-dateutil python3-setuptools python3-beautifulsoup4
+
 
   # Next we install the libaries installed by pip
   python3 -m pip install matplotlib lxml 
