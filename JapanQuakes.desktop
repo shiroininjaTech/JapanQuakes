@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=JapanQuakes
+Icon=/home/username/.JapanQuakes/japan-flag.png
+Exec=python3 /home/username/.JapanQuakes/JapanQuakes.py
+Terminal=false
+Type=Application
+
+Name[en_US]=JapanQuakes
