@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 
 """ Written By: Tom Mullins
     Created:  03/21/2018
-    Modified: 11/17/2022
+    Modified: 11/25/2022
 """
 
 import requests, bs4
@@ -33,7 +33,12 @@ def get_six():
 
     for grab in recentData:
         if grab.find(class_="text-warning") is None: 
-            recentItems.append(grab.find(class_="text-danger").text)
+
+            if grab.find(class_="text-danger") is None:
+               recentItems.append(grab.find(class_="text-success").text) 
+            
+            else:
+                recentItems.append(grab.find(class_="text-danger").text)
  
         else:
             recentItems.append(grab.find(class_="text-warning").text)
@@ -157,7 +162,12 @@ def get_asia_six():
 
     for grab in recentData:
         if grab.find(class_="text-warning") is None: 
-            narrowerGrabs.append(grab.find(class_="text-danger").text)
+
+            if grab.find(class_="text-danger") is None:
+                narrowerGrabs.append(grab.find(class_="text-success").text)
+            
+            else:
+                narrowerGrabs.append(grab.find(class_="text-danger").text)
 
         else:
             narrowerGrabs.append(grab.find(class_="text-warning").text)
