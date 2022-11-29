@@ -7,7 +7,7 @@
 """
    * Written By: Tom Mullins
    * Version: 0.75
-   * Date Modified: 11/18/22
+   * Date Modified: 11/29/22
 """
 """
    * Changelog:
@@ -53,7 +53,7 @@ class App(QMainWindow):
 
         #self.setGeometry(0, 0, 0, 0)
         self.setWindowTitle('Japan Quakes')
-        self.setWindowIcon(QIcon('japan-flag.png'))
+        self.setWindowIcon(QIcon(os.path.expanduser("~/.JapanQuakes/japan-flag.png")))
         self.setStyleSheet("QMainWindow { background-color: White; color: Black; }")
         #qtRectangle = self.frameGeometry()
         #centerPoint = QDesktopWidget().availableGeometry().center()
@@ -80,20 +80,20 @@ class App(QMainWindow):
         def Default():
             themeConfig.set('theme', 'key1', 'default')
 
-            with open('japanConfig.ini', 'w') as f:
+            with open(os.path.expanduser("~/.JapanQuakes/config.ini"), 'w') as f:
                 themeConfig.write(f)
 
 
         def Spacex():
             themeConfig.set('theme', 'key1', 'spaceX')
 
-            with open('japanConfig.ini', 'w') as f:
+            with open(os.path.expanduser("~/.JapanQuakes/config.ini"), 'w') as f:
                 themeConfig.write(f)
 
         def japan():
             themeConfig.set('theme', 'key1', 'japan')
 
-            with open('japanConfig.ini', 'w') as f:
+            with open(os.path.expanduser("~/.JapanQuakes/config.ini"), 'w') as f:
                 themeConfig.write(f)
 
         # Set the central widget
@@ -116,18 +116,18 @@ class App(QMainWindow):
         # initialize
         # Checking if the config file is present, and making one if it isnt. This prevents the configuration from being over written.
 
-        if not os.path.isfile("/home/shiroininja/japanConfig.ini"):
+        if not os.path.isfile(os.path.expanduser("~/.JapanQuakes/config.ini")):
             themeConfig = SafeConfigParser()
-            themeConfig.read('japanConfig.ini')
+            themeConfig.read(os.path.expanduser("~/.JapanQuakes/config.ini"))
             themeConfig.add_section('theme')
             themeConfig.set('theme', 'key1', 'default')
             themeSelected = themeConfig.get('theme', 'key1')
 
-            with open('config.ini', 'w') as f:
+            with open(os.path.expanduser("~/.JapanQuakes/config.ini"), 'w') as f:
                 themeConfig.write(f)
-        elif os.path.isfile("/home/shiroininja/japanConfig.ini"):
+        elif os.path.isfile(os.path.expanduser("~/.JapanQuakes/config.ini")):
             themeConfig = SafeConfigParser()
-            themeConfig.read('japanConfig.ini')
+            themeConfig.read(os.path.expanduser("~/.JapanQuakes/config.ini"))
             themeSelected = themeConfig.get('theme', 'key1')
         #=================================================================================================
         # Creating tabs in the UI
@@ -549,7 +549,7 @@ class App(QMainWindow):
         # Adding options to the menubar
         #=============================================================================================
 
-        iconList = ['/home/shiroininja/Documents/PythonFiles/web_scraping/JapanQuakes/exit.png', '/home/shiroininja/Documents/PythonFiles/web_scraping/JapanQuakes/about.png', '/home/shiroininja/Documents/PythonFiles/web_scraping/JapanQuakes/information.png']
+        iconList = [os.path.expanduser("~/.JapanQuakes/exit.png"), os.path.expanduser("~/.JapanQuakes/about.png"), os.path.expanduser("~/.JapanQuakes/refresh.png")]
 
         # The menu item builder
         # takes an image from iconLst as image
@@ -598,7 +598,7 @@ class App(QMainWindow):
             japan_strengths()
 
         # Adding the Refresh option to the menu. Refreshes all the widgets.
-        refreshAct = QAction(QIcon('refresh.png'), '&Refresh', self)
+        refreshAct = QAction(QIcon(os.path.expanduser("~/.JapanQuakes/refresh.png")), '&Refresh', self)
         refreshAct.setStatusTip('Refreshes Earthquake Data')
         refreshAct.triggered.connect(refreshMethod)
 
