@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 
 """ Written By: Tom Mullins
     Version: 0.75
-    Modified: 11/18/22
+    Modified: 12/04/22
 """
 """* Changelog:
    * V 0.5. The initial completed library, with two modules.
@@ -89,7 +89,7 @@ def mostRecent():
     japanrecentlyStripped = re.sub( '\s+', ' ', "2022".join(japanRecent.split("2022", 2)[:2])).strip()
     #print(japanrecentlyStripped)
 
-    finalStrip = ".".join(japanrecentlyStripped.split(".", 2)[:2])[:-1]
+    finalStrip = ".".join(japanrecentlyStripped.split(".", 2)[:2])
 
     global recentItem
     recentItem = [finalStrip]
@@ -113,7 +113,7 @@ def mostasiaRecent():
     asiarecentItem = asiarecentData[0].getText()
     asiarecentString = str(asiarecentItem)
     asiarecentlyStripped = re.sub( '\s+', ' ', "2022".join(asiarecentString.split("2022", 2)[:2])).strip()
-    finalStrip = ".".join(asiarecentlyStripped.split(".", 2)[:2])[:-1]
+    finalStrip = ".".join(asiarecentlyStripped.split(".", 2)[:2])
     global asiarecentList
     asiarecentList = [finalStrip]
 

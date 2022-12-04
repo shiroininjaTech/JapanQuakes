@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 
 """ Written By: Tom Mullins
     Created:  03/21/2018
-    Modified: 11/25/2022
+    Modified: 12/04/2022
 """
 
 import requests, bs4
@@ -86,12 +86,12 @@ def get_six():
 
     global sixLocations
     sixLocations = []
-    sixLocations.append("".join(finalLocation2[0].split(".", 2)[:1])[:-1].replace(', ', ',\n'))    # adding the first six items to the global list
-    sixLocations.append("".join(finalLocation2[1].split(".", 2)[:1])[:-1].replace(', ', ',\n'))
-    sixLocations.append("".join(finalLocation2[2].split(".", 2)[:1])[:-1].replace(', ', ',\n'))
-    sixLocations.append("".join(finalLocation2[3].split(".", 2)[:1])[:-1].replace(', ', ',\n'))
-    sixLocations.append("".join(finalLocation2[4].split(".", 2)[:1])[:-1].replace(', ', ',\n'))
-    sixLocations.append("".join(finalLocation2[5].split(".", 2)[:1])[:-1].replace(', ', ',\n'))
+    sixLocations.append("".join(finalLocation2[0].split(".", 2)[:1]).replace(', ', ',\n'))    # adding the first six items to the global list
+    sixLocations.append("".join(finalLocation2[1].split(".", 2)[:1]).replace(', ', ',\n'))
+    sixLocations.append("".join(finalLocation2[2].split(".", 2)[:1]).replace(', ', ',\n'))
+    sixLocations.append("".join(finalLocation2[3].split(".", 2)[:1]).replace(', ', ',\n'))
+    sixLocations.append("".join(finalLocation2[4].split(".", 2)[:1]).replace(', ', ',\n'))
+    sixLocations.append("".join(finalLocation2[5].split(".", 2)[:1]).replace(', ', ',\n'))
 
     #print(sixLocations) # TESTING
     return
@@ -207,7 +207,7 @@ def get_asia_six():
     iteratorInt = 0
     sixLocations = []
     while iteratorInt < 7:
-        sixLocations.append("".join(finalLocation[iteratorInt].split(".", 2)[:1])[:-1])
+        sixLocations.append("".join(finalLocation[iteratorInt].split(".", 2)[:1]))
         iteratorInt += 1
     # Adding spaces after the commas
     global approvedSix
