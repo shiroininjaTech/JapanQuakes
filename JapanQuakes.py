@@ -6,8 +6,8 @@
 """
 """
    * Written By: Tom Mullins
-   * Version: 0.75
-   * Date Modified: 11/29/22
+   * Version: 0.85
+   * Date Modified: 1/27/23
 """
 """
    * Changelog:
@@ -20,6 +20,9 @@
    * V 0.65: Minor chages to file menu labels, changes to window positions, added a reload option in the Menu that deletes and reloads widgets.
    * V 0.70: Added Theme settings, using astroThemes module and .config files to allow saveable theme settings by the user. Also added the Japan Data tab, containing
      two graphs, one showing the strengths of the last six earthquakes and the other showing total earthquake counts by prefecture.
+   * V 0.85: The project has been rewritten to use Scrapy for web scraping instead of Bs4. This has removed ineffecient functions and variables. The project
+    also now has an installation script and minor bug fixes.
+
 """
 
 
@@ -40,9 +43,13 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.ticker as mtick
 import numpy as np
-import astroThemes
-import japanGraph
-import japanEarthquaker
+import astroThemes, japanGraph, japanEarthquaker
+import scrapy
+from scrapy.crawler import CrawlerProcess
+from twisted.internet import reactor, defer
+from scrapy.crawler import CrawlerRunner
+from QuakeScraper.QuakeScraper.spiders import quakeGetter
+import re 
 
 # Setting up the GUI window class and methods.
 
@@ -129,6 +136,24 @@ class App(QMainWindow):
             themeConfig = SafeConfigParser()
             themeConfig.read(os.path.expanduser("~/.JapanQuakes/config.ini"))
             themeSelected = themeConfig.get('theme', 'key1')
+
+
+        #=================================================================================================
+        # Running the Scrapy Spiders.
+        #=================================================================================================
+        @defer.inlineCallbacks
+        
+        def spiderLauncher():
+            process = CrawlerRunner({'ITEM_PIPELINES': { 'japanEarthquaker.QuakeCollectorPipeline': 2000}})
+            yield process.crawl(quakeGetter.QuakegetterSpider)
+
+            reactor.stop()
+            return
+
+        spiderLauncher()
+        reactor.run()
+
+
         #=================================================================================================
         # Creating tabs in the UI
         #=================================================================================================
@@ -269,6 +294,17 @@ class App(QMainWindow):
         # The Japan Tab.
         #=====================================================================================================================
 
+        # Getting the dictionart for Japan, then getting the raw magnitudes and locations.
+        japansData = dict(japanEarthquaker.quakeData[0])
+        quakeList = japansData['rawList']
+        strengthList = japansData['magnitudes']
+
+        # Properly formatting the recent quake string.
+        quakeMeasure = strengthList[0] + " Magnitude"
+        fullRecent =  quakeList[0].replace("UTC", "UTC \n%s" % quakeMeasure)
+
+        
+        #Inserting the magnitude into the locations.
         # setting the layout for the Tab
         self.japanTab.layout = QGridLayout()
         # A welcome message to the user.
@@ -278,10 +314,14 @@ class App(QMainWindow):
         # Adding a most recent quake message
         #
         # A function to setup the most recent quake in japan message.
-        def get_recent():
-            japanEarthquaker.mostRecent()
-            japanEarthquaker.recentItem.append('Ah')
-            recentMessage = "The Most Recent Quake Was At: \n %s" % japanEarthquaker.recentItem[0]
+        """
+            This function can most likely be deleted and use a generic label maker.
+        """
+        def get_recent(recentString):
+            #japanEarthquaker.mostRecent()
+            #japanEarthquaker.recentItem.append('Ah')
+            
+            recentMessage = "The Most Recent Quake Was: \n %s" % recentString
             self.mostRecent = QLabel(recentMessage, self)
             self.mostRecent.setAlignment(QtCore.Qt.AlignCenter)
             self.mostRecent.resize(30, 30)
@@ -296,16 +336,14 @@ class App(QMainWindow):
         jcountMessage = "Earthquake Counts for Japan"
         labelMaker(jcountMessage, frameLayout, 300)
 
-        # A function for getting the quake count for Japan
-        def japan_count():
-            japanEarthquaker.japanQuakes()
-            japanEarthquaker.quakeList.append('argh')
-            message1 = "\n{} \n".format(japanEarthquaker.quakeList[0])
-            labelMaker(message1, frameLayout, 300)
+        # Using data scraped from scrapy
+        # Only one line needed now.
+        labelMaker((japansData['counts'].replace(' \n', '')).strip(), frameLayout, 300)
+
 
         # japan_count() must be run before japan_strengths() or it will appear
         # in the strengths frame
-        japan_count()
+        #japan_count()
         interior_Spacer(200, frameLayout)
         # Creating a frame for japanese Magnitudes.
         frameBuilder(scroll.layout, 1, 1, 600)
@@ -315,18 +353,15 @@ class App(QMainWindow):
         jstrengthMessage = "Strongest Earthquakes by Magnitude For Japan"
         labelMaker(jstrengthMessage, frameLayout, 350)
 
-        # A function to get the earthquake strengths from japanEarthquaker
-        def japan_strengths():
-            japanEarthquaker.quakeStrengths()
-            japanEarthquaker.strengthList.append('yo')
-            message2 = "\n {} \n".format(japanEarthquaker.strengthList[0],)
-            labelMaker(message2, frameLayout, 350)
+        # running the function to make the lable. 
+        get_recent(fullRecent)
 
-        get_recent()
+        # Creating the label for the quake strengths stats.
+        labelMaker(japansData['strengths'].replace(' this', '\nThis'), frameLayout, 350)
 
         # adding a verticle spacer
         vert_Spacer(225, scroll.layout, 0, 3)
-        japan_strengths()
+        #japan_strengths()
         interior_Spacer(100, frameLayout)
 
         gframeBuilder(scroll.layout, 2, 1, 600)
@@ -334,7 +369,6 @@ class App(QMainWindow):
         #self.jgraphTab.layout = QGridLayout()
 
         japanGraph.get_six()
-        japanGraph.floatSix.append('Ah')
         japanGraph.sixLocations.append('Ah')
         # building the widget for the graph
         self.figure = plt.figure(figsize=(10,5))
@@ -346,7 +380,7 @@ class App(QMainWindow):
         ind = np.arange(xItems)
 
         # heights of bars, also the amounts to plot.
-        height = [japanGraph.floatSix[0], japanGraph.floatSix[1], japanGraph.floatSix[2], japanGraph.floatSix[3], japanGraph.floatSix[4], japanGraph.floatSix[5]]
+        height = [japanGraph.strengthFloats[0], japanGraph.strengthFloats[1], japanGraph.strengthFloats[2], japanGraph.strengthFloats[3], japanGraph.strengthFloats[4], japanGraph.strengthFloats[5]]
         p1 = plt.bar(ind, height) #setting the plot
 
         # The function that builds the graph and plots the data to it.
@@ -394,7 +428,7 @@ class App(QMainWindow):
             plt.xlabel('Prefectures')
             plt.title('Earthquake Counts By Prefecture for Last 30 Quakes')
             plt.xticks(ind2, (japanGraph.prefectureName), fontsize = 8)
-            plt.yticks(np.arange(15))
+            plt.yticks(np.arange(0, max(japanGraph.prefectureCounts) + 5, 5.0))
             for a,b in zip(ind2, height2):
                 plt.text(a, b, str(b), fontdict=dict(fontsize=8, ha='center', va='bottom'))
 
@@ -410,11 +444,19 @@ class App(QMainWindow):
 
         self.asiaTab.layout = QGridLayout()
 
+        # Getting the dictionart for Asia, then getting the raw magnitudes and locations.
+        asiasData = dict(japanEarthquaker.quakeData[1])
+        asiaquakeList = asiasData['rawList']
+        asiastrengthList = asiasData['magnitudes']
+
+        # Properly formatting the recent quake string.
+        asiaquakeMeasure = asiastrengthList[0] + " Magnitude"
+        asiafullRecent =  asiaquakeList[0].replace("UTC", "UTC \n%s" % quakeMeasure)
+
+
         # Getting the most recent quake in asia.
-        def get_asia_recent():
-                japanEarthquaker.mostasiaRecent()
-                japanEarthquaker.asiarecentList.append('Ah')
-                asiarecentMessage = "The Most Recent Quake In Asia Was: \n %s" % japanEarthquaker.asiarecentList[0]
+        def get_asia_recent(fullVar):
+                asiarecentMessage = "The Most Recent Quake In Asia Was: \n %s" % fullVar
                 self.asiaRecent = QLabel(asiarecentMessage, self)
                 self.asiaRecent.setAlignment(QtCore.Qt.AlignCenter)
                 #self.asiaRecent.resize(30, 30)
@@ -428,15 +470,9 @@ class App(QMainWindow):
         # Header for Asian quake counts
         acountMessage = "Earthquake Counts for Asia"
         labelMaker(acountMessage, frameLayout, 300)
-
-        # Function for creating the recent asian quakes label
-        def asia_get_quakes():
-            japanEarthquaker.asiaQuakes()
-            japanEarthquaker.asia_quakeList.append('argh')
-            asia_message1 = "\n{} \n".format(japanEarthquaker.asia_quakeList[0])
-            labelMaker(asia_message1, frameLayout, 300)
-
-        asia_get_quakes()
+        
+        labelMaker((asiasData['counts'].replace(' \n', '')).strip(), frameLayout, 300)
+        #asia_get_quakes()
         interior_Spacer(200, frameLayout)
 
         # Creating a frame for Asian Magnitudes.
@@ -447,16 +483,10 @@ class App(QMainWindow):
         amagMessage = "Strongest Earthquakes by Magnitude For Asia"
         labelMaker(amagMessage, frameLayout, 400)
 
-        # The function to create Asian Magnitude record label
-        def asia_get_strengths():
-            japanEarthquaker.asiaStrengths()
-            japanEarthquaker.asia_strengthList.append('argh')
-            asia_message2 = "\n {} \n".format(japanEarthquaker.asia_strengthList[0])
-            labelMaker(asia_message2, frameLayout, 400)
-
-        get_asia_recent()
+        get_asia_recent(asiafullRecent)
+        labelMaker(asiasData['strengths'].replace(' this', '\nThis'), frameLayout, 450)
         vert_Spacer(225, scroll.layout, 0, 2)
-        asia_get_strengths()
+        #asia_get_strengths()
         interior_Spacer(200, frameLayout)
 
         gframeBuilder(scroll.layout, 2, 1, 600)
@@ -464,7 +494,6 @@ class App(QMainWindow):
         #self.jgraphTab.layout = QGridLayout()
 
         japanGraph.get_asia_six()
-        japanGraph.floatSix.append('Ah')
         japanGraph.approvedSix.append('Ah')
         # building the widget for the graph
         self.figure = plt.figure(figsize=(10,5))
@@ -476,7 +505,7 @@ class App(QMainWindow):
         ind = np.arange(xItems)
 
         # heights of bars, also the amounts to plot.
-        height = [japanGraph.floatSix[0], japanGraph.floatSix[1], japanGraph.floatSix[2], japanGraph.floatSix[3], japanGraph.floatSix[4], japanGraph.floatSix[5]]
+        height = [japanGraph.asiaFloats[0], japanGraph.asiaFloats[1], japanGraph.asiaFloats[2], japanGraph.asiaFloats[3], japanGraph.asiaFloats[4], japanGraph.asiaFloats[5]]
         p1 = plt.bar(ind, height) #setting the plot
 
         # The function that builds the graph and plots the data to it.
@@ -525,12 +554,8 @@ class App(QMainWindow):
             plt.xlabel('Countries')
             plt.title('Earthquake Counts By Country for Last 30 Quakes')
             plt.xticks(ind2, (japanGraph.countryName), fontsize = 8)
-            #plt.yticks(height)
-            #fig, ax = plt.subplots()
-            #plt.yticks.set_major_formatter(FormatStrFormatter('%.2f'))
-            #plt.gca().yaxis.set_major_formatter(mtick.FormatStrFormatter('%.1f'))
-            #plt.ylim(3.0,8.0)
-            plt.yticks(np.arange(15))
+
+            plt.yticks(np.arange(0, max(japanGraph.countryCounts) + 5, 5.0))
             for a,b in zip(ind2, height2):
                 plt.text(a, b, str(b), ha='center')
 
@@ -594,8 +619,8 @@ class App(QMainWindow):
             asia_get_quakes()
             asia_get_strengths()
             get_recent()
-            japan_count()
-            japan_strengths()
+            #japan_count()
+            #japan_strengths()
 
         # Adding the Refresh option to the menu. Refreshes all the widgets.
         refreshAct = QAction(QIcon(os.path.expanduser("~/.JapanQuakes/refresh.png")), '&Refresh', self)
