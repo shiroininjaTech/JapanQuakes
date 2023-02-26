@@ -39,7 +39,7 @@ if [ "$OS" = "Fedora Linux" ] ; then
 
 else
   # First, we need to install the proper python 3 Libraries
-  sudo apt-get install -y python3-pip python3-pyqt5 python3-dateutil python3-setuptools
+  sudo apt-get install -y python3-pip python3-pyqt5 python3-dateutil python3-setuptools python3-bs4
 
   # Next we install the libaries installed by pip
   python3 -m pip install matplotlib lxml requests scrapy
